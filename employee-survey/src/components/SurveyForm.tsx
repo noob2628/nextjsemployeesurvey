@@ -2,10 +2,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 
 const surveySchema = z.object({
   employeeName: z.string().min(2),
@@ -45,16 +45,82 @@ export function SurveyForm() {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          {/* Form fields here */}
-          <div>
-            <Label htmlFor="employeeName">Name</Label>
-            <Input {...register("employeeName")} />
-            {errors.employeeName && <span className="text-red-500">Required</span>}
+          <div className="space-y-2">
+            <Label htmlFor="employeeName">Full Name</Label>
+            <Input 
+              id="employeeName" 
+              {...register("employeeName")} 
+              placeholder="John Doe" 
+            />
+            {errors.employeeName && (
+              <span className="text-red-500 text-sm">Minimum 2 characters required</span>
+            )}
           </div>
-          {/* Add other fields following same pattern */}
+
+          <div className="space-y-2">
+            <Label htmlFor="employeeEmail">Email</Label>
+            <Input
+              id="employeeEmail"
+              type="email"
+              {...register("employeeEmail")}
+              placeholder="john@company.com"
+            />
+            {errors.employeeEmail && (
+              <span className="text-red-500 text-sm">Valid email required</span>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="department">Department</Label>
+            <Input
+              id="department"
+              {...register("department")}
+              placeholder="Engineering"
+            />
+            {errors.department && (
+              <span className="text-red-500 text-sm">Department required</span>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Work-Life Balance Rating (1-5)</Label>
+            <Input
+              type="number"
+              {...register("workLifeBalance", { valueAsNumber: true })}
+              min="1"
+              max="5"
+            />
+            {errors.workLifeBalance && (
+              <span className="text-red-500 text-sm">Rating between 1-5 required</span>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Job Satisfaction Rating (1-5)</Label>
+            <Input
+              type="number"
+              {...register("jobSatisfaction", { valueAsNumber: true })}
+              min="1"
+              max="5"
+            />
+            {errors.jobSatisfaction && (
+              <span className="text-red-500 text-sm">Rating between 1-5 required</span>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="feedback">Additional Feedback</Label>
+            <Input
+              id="feedback"
+              {...register("feedback")}
+              placeholder="Optional comments..."
+            />
+          </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit">Submit Survey</Button>
+          <Button type="submit" className="w-full">
+            Submit Survey
+          </Button>
         </CardFooter>
       </form>
     </Card>

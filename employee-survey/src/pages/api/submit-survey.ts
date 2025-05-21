@@ -19,8 +19,8 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      const parsedData = JSON.parse(req.body);
-      const validatedData = surveySchema.parse(parsedData);
+      // Remove JSON.parse() since Next.js already parses the body
+      const validatedData = surveySchema.parse(req.body);
 
       // Database operation
       const survey = await prisma.survey.create({
@@ -34,10 +34,12 @@ export default async function handler(
     } catch (error: unknown) {
       console.error("Error:", error);
       let details = "Unknown error";
-      if (error && typeof error === "object" && "errors" in error) {
-        details = (error as { errors: unknown }).errors as string;
-      } else if (error instanceof Error) {
-        details = error.message;
+      if (error && typeof error === "object") {
+        if ("errors" in error) {
+          details = JSON.stringify((error as z.ZodError).errors);
+        } else if ("message" in error) {
+          details = (error as Error).message;
+        }
       }
       res.status(400).json({ 
         error: "Invalid survey data",
