@@ -2,10 +2,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../components/ui/card";
 
 const surveySchema = z.object({
   employeeName: z.string().min(2),
@@ -21,7 +21,7 @@ export function SurveyForm() {
     resolver: zodResolver(surveySchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof surveySchema>) => {
     try {
       const response = await fetch("/api/submit-survey", {
         method: "POST",

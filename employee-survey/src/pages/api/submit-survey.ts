@@ -31,11 +31,17 @@ export default async function handler(
         message: "Survey submitted successfully",
         data: survey 
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error:", error);
+      let details = "Unknown error";
+      if (error && typeof error === "object" && "errors" in error) {
+        details = (error as { errors: unknown }).errors as string;
+      } else if (error instanceof Error) {
+        details = error.message;
+      }
       res.status(400).json({ 
         error: "Invalid survey data",
-        details: error.errors || error.message 
+        details
       });
     } finally {
       await prisma.$disconnect();
