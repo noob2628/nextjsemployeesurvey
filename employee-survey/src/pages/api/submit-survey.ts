@@ -19,10 +19,20 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      // Remove JSON.parse() since Next.js already parses the body
       const validatedData = surveySchema.parse(req.body);
 
-      // Database operation
+      // Check if email already exists
+      const existingSurvey = await prisma.survey.findUnique({
+        where: { employeeEmail: validatedData.employeeEmail }
+      });
+
+      if (existingSurvey) {
+        return res.status(400).json({ 
+          error: "This email has already submitted a survey",
+        });
+      }
+
+      // Create new survey if email doesn't exist
       const survey = await prisma.survey.create({
         data: validatedData,
       });
@@ -32,18 +42,27 @@ export default async function handler(
         data: survey 
       });
     } catch (error: unknown) {
-      console.error("Error:", error);
-      let details = "Unknown error";
-      if (error && typeof error === "object") {
-        if ("errors" in error) {
-          details = JSON.stringify((error as z.ZodError).errors);
-        } else if ("message" in error) {
-          details = (error as Error).message;
-        }
+      // Handle Prisma errors
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2002"
+      ) {
+        return res.status(400).json({
+          error: "This email has already submitted a survey",
+        });
       }
+      
+      // Other errors
       res.status(400).json({ 
         error: "Invalid survey data",
-        details
+        details:
+          typeof error === "object" && error !== null && "errors" in error
+            ? (error as { errors?: unknown }).errors
+            : typeof error === "object" && error !== null && "message" in error
+            ? (error as { message?: string }).message
+            : String(error),
       });
     } finally {
       await prisma.$disconnect();

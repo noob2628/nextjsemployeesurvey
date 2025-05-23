@@ -16,7 +16,7 @@ datasource db {
 model Survey {
   id               Int      @id @default(autoincrement())
   employeeName     String
-  employeeEmail    String   @unique
+  employeeEmail    String  
   department       String
   workLifeBalance  Int
   jobSatisfaction  Int

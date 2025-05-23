@@ -2,10 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const surveySchema = z.object({
   employeeName: z.string().min(2),
@@ -22,107 +19,121 @@ export function SurveyForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof surveySchema>) => {
-    try {
-      const response = await fetch("/api/submit-survey", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        alert("Survey submitted successfully!");
-      }
-    } catch (error) {
-      console.error("Submission failed:", error);
+  try {
+    const response = await fetch("/api/submit-survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.error || "Submission failed");
     }
-  };
+    
+    alert("Survey submitted successfully!");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      alert(error.message); // Show error message from API
+    } else {
+      alert("An unknown error occurred");
+    }
+  }
+};
 
   return (
-    <Card className="max-w-2xl mx-auto my-8">
-      <CardHeader>
-        <CardTitle>Employee Satisfaction Survey</CardTitle>
-      </CardHeader>
+    <div className="card mx-auto my-4" style={{ maxWidth: '600px' }}>
+      <div className="card-header bg-primary text-white">
+        <h3 className="card-title mb-0">Employee Satisfaction Survey</h3>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="employeeName">Full Name</Label>
-            <Input 
-              id="employeeName" 
-              {...register("employeeName")} 
-              placeholder="John Doe" 
+        <div className="card-body">
+          <div className="mb-3">
+            <label htmlFor="employeeName" className="form-label">Full Name</label>
+            <input
+              id="employeeName"
+              {...register("employeeName")}
+              className={`form-control ${errors.employeeName ? 'is-invalid' : ''}`}
+              placeholder="John Doe"
             />
             {errors.employeeName && (
-              <span className="text-red-500 text-sm">Minimum 2 characters required</span>
+              <div className="invalid-feedback">Minimum 2 characters required</div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="employeeEmail">Email</Label>
-            <Input
+          <div className="mb-3">
+            <label htmlFor="employeeEmail" className="form-label">Email</label>
+            <input
               id="employeeEmail"
               type="email"
               {...register("employeeEmail")}
+              className={`form-control ${errors.employeeEmail ? 'is-invalid' : ''}`}
               placeholder="john@company.com"
             />
             {errors.employeeEmail && (
-              <span className="text-red-500 text-sm">Valid email required</span>
+              <div className="invalid-feedback">Valid email required</div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
-            <Input
+          <div className="mb-3">
+            <label htmlFor="department" className="form-label">Department</label>
+            <input
               id="department"
               {...register("department")}
+              className={`form-control ${errors.department ? 'is-invalid' : ''}`}
               placeholder="Engineering"
             />
             {errors.department && (
-              <span className="text-red-500 text-sm">Department required</span>
+              <div className="invalid-feedback">Department required</div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Work-Life Balance Rating (1-5)</Label>
-            <Input
+          <div className="mb-3">
+            <label className="form-label">Work-Life Balance Rating (1-5)</label>
+            <input
               type="number"
               {...register("workLifeBalance", { valueAsNumber: true })}
+              className={`form-control ${errors.workLifeBalance ? 'is-invalid' : ''}`}
               min="1"
               max="5"
             />
             {errors.workLifeBalance && (
-              <span className="text-red-500 text-sm">Rating between 1-5 required</span>
+              <div className="invalid-feedback">Rating between 1-5 required</div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Job Satisfaction Rating (1-5)</Label>
-            <Input
+          <div className="mb-3">
+            <label className="form-label">Job Satisfaction Rating (1-5)</label>
+            <input
               type="number"
               {...register("jobSatisfaction", { valueAsNumber: true })}
+              className={`form-control ${errors.jobSatisfaction ? 'is-invalid' : ''}`}
               min="1"
               max="5"
             />
             {errors.jobSatisfaction && (
-              <span className="text-red-500 text-sm">Rating between 1-5 required</span>
+              <div className="invalid-feedback">Rating between 1-5 required</div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="feedback">Additional Feedback</Label>
-            <Input
+          <div className="mb-3">
+            <label htmlFor="feedback" className="form-label">Additional Feedback</label>
+            <textarea
               id="feedback"
               {...register("feedback")}
+              className="form-control"
               placeholder="Optional comments..."
+              rows={3}
             />
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full">
+        </div>
+        <div className="card-footer">
+          <button type="submit" className="btn btn-primary w-100">
             Submit Survey
-          </Button>
-        </CardFooter>
+          </button>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }
